@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <!--
 Copyright (c) 2019 Andrew Vardeman.  Published under the MIT license.
-See license.txt in the FileSharper distribution or repository for the
+See license.txt in the IcollatorForever distribution or repository for the
 full text of the license.
 -->
 <html>
@@ -9,7 +9,7 @@ full text of the license.
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>Icollator Forever</title>
-    <base href="/IcollatorForever/" />
+    <base href="/" />
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/site.css" rel="stylesheet" />
     <script type="text/javascript">
@@ -31,6 +31,21 @@ full text of the license.
         function saveFile(base64) {
             var dataurl = "data:image/x-icon;base64," + base64;
             var newWindow = window.open(dataurl, 'untitled.ico');
+        }
+
+        function clearTable() {
+            var yes = confirm('Clear the table and start over?');
+            if (yes) {
+                DotNet.invokeMethod('IcollatorForever', 'Clear');
+            }
+        }
+
+        function select(index) {
+            DotNet.invokeMethod('IcollatorForever', 'Select', index);
+        }
+
+        function deleteSelected() {
+            DotNet.invokeMethod('IcollatorForever', 'DeleteSelected');
         }
 
     </script>
@@ -59,6 +74,6 @@ full text of the license.
             }
         }, 1000);
     </script>
-    <script type="text/javascript" src="_framework/components.webassembly.js"></script>
+    <script src="_framework/components.webassembly.js"></script>
 </body>
 </html>
