@@ -90,8 +90,22 @@ td {
 
 #iconTableContainer {
     flex: auto;
-    display: block;
+    display: flex;
+    flex-direction: row;
     overflow-y: auto;
+}
+
+    #iconTableContainer.over {
+        background-color: #e6e6e6;
+    }
+
+#dropTarget {
+    flex: initial;
+    align-self: center;
+    align-content: center;
+    margin: auto;
+    color: #999;
+    pointer-events: none; /* don't report a dragleave on the parent */
 }
 
 #selectedEntryActions {
