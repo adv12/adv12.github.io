@@ -9,12 +9,31 @@ full text of the license.
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>Icollator Forever</title>
-    <base href="/IcollatorForever/" />
+    <base href="/IcollatorForever" />
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/site.css" rel="stylesheet" />
     <script type="text/javascript">
 
         var _loading = false;
+
+        window.onbeforeunload = function () {
+            history.pushState({}, "Icollator Forever", "/");
+        }
+
+        function elementIndex(node) {
+            console.log("node name = " + node.name);
+            var nodes = node.parentNode.childNodes;
+            var elementIndex = 0;
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].nodeType == Node.ELEMENT_NODE) {
+                    if (nodes[i] == node) {
+                        return elementIndex;
+                    }
+                    elementIndex++;
+                }
+            }
+            return -1;
+        }
 
         async function loadFiles(files) {
             for (var i = 0; i < files.length; i++) {
