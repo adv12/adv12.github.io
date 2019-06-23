@@ -16,8 +16,8 @@ full text of the license.
 
         var _loading = false;
 
-        window.onbeforeunload = function () {
-            history.pushState({}, "Icollator Forever", "/");
+        window.onbeforeunload = function (e) {
+            DotNet.invokeMethod('IcollatorForever', 'GoToRoot');
         }
 
         function elementIndex(node) {
