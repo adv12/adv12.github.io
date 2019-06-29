@@ -9,7 +9,7 @@ full text of the license.
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>Icollator Forever</title>
-    <base href="/IcollatorForever/" />
+    <base href="/IcollatorForever" />
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/site.css" rel="stylesheet" />
     <script type="text/javascript">
@@ -18,6 +18,14 @@ full text of the license.
 
         window.onbeforeunload = function (e) {
             DotNet.invokeMethod('IcollatorForever', 'GoToRoot');
+        }
+
+        function toggleColumn(colidx) {
+            alert("toggling column " + colidx);
+        }
+
+        function toggleRow(rowidx) {
+            alert("toggling row " + rowidx);
         }
 
         function elementIndex(node) {

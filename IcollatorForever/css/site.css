@@ -58,27 +58,33 @@ app {
     cursor: pointer;
 }
 
-table {
+#wrapper {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#iconTableContainer table {
     margin-left: 16px;
     margin-right: 16px;
     border-collapse: collapse;
 }
 
-tr.selected {
+#iconTableContainer tr.selected {
     color: #fff;
     background-color: #0069d9;
 }
 
-th, td {
+#iconTableContainer th, td {
     padding: 12px;
     border-bottom: 1px solid #d6d6d6;
 }
 
-th {
+#iconTableContainer th {
     background-color: #e6e6e6;
 }
 
-td {
+#iconTableContainer td {
     border-top: 1px solid #d6d6d6;
 }
 
@@ -169,3 +175,29 @@ td {
     flex: none;
     padding-top: 16px;
 }
+
+#genericImageOptions {
+    display: block;
+    flex: auto;
+}
+
+    #genericImageOptions table {
+        margin-top: 16px;
+        margin-left: 16px;
+        margin-right: 16px;
+        border-collapse: collapse;
+    }
+
+    #genericImageOptions th, td {
+        padding: 12px;
+        border: 1px solid #d6d6d6;
+    }
+
+    #genericImageOptions th {
+        background-color: #e6e6e6;
+    }
+
+    #genericImageOptions td {
+        border-top: 1px solid #d6d6d6;
+        text-align: center;
+    }
