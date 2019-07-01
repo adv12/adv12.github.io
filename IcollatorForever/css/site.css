@@ -179,12 +179,11 @@ app {
 #genericImageOptions {
     display: block;
     flex: auto;
+    overflow: auto;
+    padding: 16px;
 }
 
     #genericImageOptions table {
-        margin-top: 16px;
-        margin-left: 16px;
-        margin-right: 16px;
         border-collapse: collapse;
     }
 
@@ -201,3 +200,36 @@ app {
         border-top: 1px solid #d6d6d6;
         text-align: center;
     }
+
+    #genericImageOptions image {
+        display: block;
+    }
+
+#optionsPreviewAndTable {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    margin-top: 16px;
+}
+
+#optionsPreviewAndTable * {
+    margin-right: 16px;
+    margin-bottom: 16px;
+}
+
+#optionsImagePreview {
+    max-width: 256px;
+    max-height: 256px;
+}
+
+#userInputOverlay {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display:none;
+}
+
+.loading #userInputOverlay {
+    display: absolute;
+}
