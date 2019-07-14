@@ -1,5 +1,9 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+:root {
+    --default-ui-width: 432px;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
@@ -30,6 +34,22 @@ app {
 
 h1 {
     text-align: center;
+}
+
+.defaultWidthContainer {
+    flex: none;
+    display: block;
+}
+
+.defaultWidth {
+    width: var(--default-ui-width);
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.topMargin {
+    margin-top: 16px;
 }
 
 .setupGrid {
@@ -63,6 +83,12 @@ h1 {
     overflow-y: hidden;
 }
 
+.batchStats {
+    flex: 1;
+    display: block;
+    overflow-y: auto;
+}
+
 .topRowContainer {
     flex: none;
     display: block;
@@ -72,15 +98,27 @@ h1 {
     margin-left: auto;
     margin-right: auto;
     display: flex;
-    width: 432px;
+    width: var(--default-ui-width);
     max-width: 100%;
     justify-content: space-between;
     align-items: baseline;
 }
 
+.playerLabel {
+    flex: none;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+}
+
 .topRowItem {
     flex: none;
     display: block;
+}
+
+.topRowItem.singleLine > * {
+    display: inline;
+    width: auto;
 }
 
     .topRowItem > * {
@@ -102,7 +140,7 @@ h1 {
 
 .boardContainerContainer {
     display: block;
-    width: 432px;
+    width: var(--default-ui-width);
     max-width: 100%;
     margin-left: auto;
     margin-right: auto;
@@ -242,6 +280,23 @@ h1 {
     margin: auto;
     border-radius: 50%;
     border: 2px solid white;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #d6d6d6;
+}
+
+th {
+    background-color: #e6e6e6;
+}
+
+td {
+    border-top: 1px solid #d6d6d6;
 }
 
 .red {
