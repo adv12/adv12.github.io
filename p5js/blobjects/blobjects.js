@@ -119,8 +119,8 @@ function Blobject() {
   this.beziers = createBeziers(this.points);
 
   this.center = {
-    x: Math.random() * windowWidth,
-    y: Math.random() * windowHeight
+    x: Math.random() * width,
+    y: Math.random() * height
   };
 
   this.speedX = randomBetween(1, 5);
@@ -151,6 +151,11 @@ Blobject.prototype.getSize = function () {
 }
 
 Blobject.prototype.permute = function () {
+  if (deltaTime === undefined || deltaTime < 0 || deltaTime > 500)
+  {
+    return;
+  }
+  if (deltaTime < 0 || deltaTime )
   this.center.x += deltaTime / 100 * this.speedX;
   this.center.y += deltaTime / 100 * this.speedY;
 
@@ -217,16 +222,16 @@ function applyForces() {
       c1.x = 1;
       c1.speedX = 0;
     }
-    if (c1.x >= windowWidth - 1) {
-      c1.x = windowWidth - 1;
+    if (c1.x >= width - 1) {
+      c1.x = width - 1;
       c1.speedX = 0;
     }
     if (c1.y < 1) {
       c1.y = 1;
       c1.speedY = 0;
     }
-    if (c1.y >= windowHeight - 1) {
-      c1.y = windowHeight - 1;
+    if (c1.y >= height - 1) {
+      c1.y = height - 1;
       c1.speedY = 0;
     }
 
@@ -242,21 +247,24 @@ function applyForces() {
       b1.speedX -= acc * dx(c1, c2) / denom;
       b1.speedY -= acc * dy(c1, c2) / denom;
     }
-    b1.speedX += windowWidth / Math.pow(c1.x, 2);
-    b1.speedY += windowHeight / Math.pow(c1.y, 2);
-    b1.speedX -= windowWidth / Math.pow(windowWidth - c1.x, 2);
-    b1.speedY -= windowHeight / Math.pow(windowHeight - c1.y, 2);
-    b1.speedX = sign(b1.speedX) * Math.min(Math.abs(b1.speedX), windowWidth / 30);
-    b1.speedY = sign(b1.speedY) * Math.min(Math.abs(b1.speedY), windowHeight / 30);
+    b1.speedX += width / Math.pow(c1.x, 2);
+    b1.speedY += height / Math.pow(c1.y, 2);
+    b1.speedX -= width / Math.pow(width - c1.x, 2);
+    b1.speedY -= height / Math.pow(height - c1.y, 2);
+    b1.speedX = sign(b1.speedX) * Math.min(Math.abs(b1.speedX), width / 30);
+    b1.speedY = sign(b1.speedY) * Math.min(Math.abs(b1.speedY), height / 30);
   }
 }
 
 function draw() {
+  if (width == 0 || height == 0) {
+    return;
+  }
   colorMode(RGB, 255);
   clear();
 
   strokeWeight(windowSize / 40);
-  rect(0, 0, windowWidth, windowHeight);
+  rect(0, 0, width, height);
   applyForces();
 
   for (let i = 0; i < blobjects.length; i++) {
