@@ -1,0 +1,7 @@
+# robots.txt for adv12.github.io
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://adv12.github.io/sitemap.xml
