@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Batting Wash Test</title>
+<style>
+:root{
+  --page:#2a2724;
+  --paper:#fbf8f2;
+  --paper-2:#f3eee4;
+  --ink:#24211e;
+  --ink-2:#55504a;
+  --muted:#8a837a;
+  --rule:#e3dccf;
+  --accent:#1f5a5e;
+  --accent-2:#a8484f;
+  --accent-soft:#e6efee;
+  --cotton:#2a78d6;
+  --blend:#eb6834;
+  --poly:#1baf7a;
+  --special:#4a3aa7;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--page);color:var(--ink);font-family:var(--sans);overflow:hidden}
+button,select{font:inherit;color:inherit}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#deck{width:1600px;height:900px;position:relative;transform-origin:center center;flex:none}
+.slide{position:absolute;inset:0;background:var(--paper);padding:64px 84px 70px;display:none;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.slide.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* stitched border, a nod to the quilts */
+.slide::before{content:"";position:absolute;inset:22px;border:2px dashed var(--rule);border-radius:18px;pointer-events:none}
+.slide>*{position:relative}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:-.01em;color:var(--ink)}
+h2{font-size:52px;line-height:1.08}
+h3{font-size:28px}
+.kicker{font:600 17px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--accent-2);margin-bottom:14px}
+.lede{font-size:24px;line-height:1.45;color:var(--ink-2);max-width:1150px;margin-top:16px}
+p{margin:0}
+.foot{position:absolute;left:84px;right:84px;bottom:34px;display:flex;justify-content:space-between;font-size:14px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:8px;font-size:16px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--paper-2);color:var(--ink-2)}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.btn{border:1px solid var(--rule);background:#fff;border-radius:10px;padding:8px 16px;font-size:17px;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{border-color:var(--accent)}
+.btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.seg{display:inline-flex;gap:6px;flex-wrap:wrap}
+select.pick{font-size:19px;padding:8px 12px;border-radius:10px;border:1px solid var(--rule);background:#fff;cursor:pointer}
+
+/* ---------- title ---------- */
+.title-slide{background:
+  radial-gradient(circle at 85% 20%,rgba(168,72,79,.08),transparent 45%),
+  radial-gradient(circle at 10% 90%,rgba(31,90,94,.10),transparent 45%),var(--paper)}
+.title-slide h1{font-size:92px;line-height:1.02;max-width:900px}
+.title-grid{display:grid;grid-template-columns:1fr 620px;gap:40px;height:100%;align-items:center}
+.title-mosaic{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;transform:rotate(-3deg)}
+.title-mosaic img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.18);background:#eee}
+
+/* ---------- process ---------- */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-top:40px}
+.step{background:#fff;border:1px solid var(--rule);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.step img{width:100%;height:250px;object-fit:cover;object-position:center 30%;background:#eee}
+.step .b{padding:14px 16px 18px}
+.step .n{font:700 14px var(--sans);color:var(--accent-2);letter-spacing:.1em}
+.step h4{font:600 22px/1.2 var(--serif);margin:6px 0 6px}
+.step p{font-size:16px;color:var(--ink-2);line-height:1.4}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:26px}
+.fact{border-left:4px solid var(--accent);padding:4px 0 4px 16px}
+.fact b{display:block;font:600 26px var(--serif)}
+.fact span{font-size:16px;color:var(--ink-2)}
+
+/* ---------- lineup ---------- */
+.fam-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:34px}
+.fam{background:#fff;border:1px solid var(--rule);border-radius:16px;padding:20px}
+.fam h3{font-size:24px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.fam h3 .dot{width:16px;height:16px}
+.bcard{display:flex;gap:12px;align-items:center;padding:9px 8px;border-radius:12px;cursor:pointer;transition:background .15s}
+.bcard:hover{background:var(--paper-2)}
+.bcard img{width:58px;height:72px;object-fit:cover;border-radius:6px;background:#eee}
+.bcard b{font-size:18px;display:block}
+.bcard small{font-size:14px;color:var(--muted)}
+.stock{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--accent);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:2px}
+
+/* ---------- paired photos ---------- */
+.wipe-wrap{display:grid;grid-template-columns:400px 1fr;gap:44px;margin-top:30px;height:640px}
+.side-note{font-size:20px;line-height:1.5;color:var(--ink-2)}
+.side-note .big{font:600 34px/1.2 var(--serif);color:var(--ink);margin-bottom:18px}
+
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;height:640px}
+.pair figure{margin:0;display:flex;flex-direction:column;gap:8px;cursor:zoom-in;min-height:0}
+.pair img{flex:1;min-height:0;width:100%;object-fit:contain;border-radius:14px}
+.pair figcaption{font-size:16px;font-weight:600;color:var(--ink-2);text-align:center}
+/* ---------- charts ---------- */
+.chart-row{display:grid;grid-template-columns:1fr 360px;gap:40px;margin-top:22px}
+.controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:22px}
+.controls label{font-size:16px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+svg text{font-family:var(--sans)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:16px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:3px 8px;border-radius:8px}
+.legend span.off{opacity:.35}
+.callout{background:#fff;border:1px solid var(--rule);border-radius:16px;padding:22px 24px;font-size:19px;line-height:1.5;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.callout h4{font:600 24px var(--serif);margin:0 0 10px;color:var(--ink)}
+.callout+.callout{margin-top:16px}
+.tip{position:absolute;pointer-events:none;background:#24211e;color:#fff;font-size:15px;line-height:1.45;padding:10px 12px;border-radius:8px;z-index:50;opacity:0;transition:opacity .1s;max-width:300px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.tip b{font-size:16px}
+.bar-hit{cursor:pointer}
+.tablebtn{font-size:15px;color:var(--accent);background:none;border:none;text-decoration:underline;cursor:pointer;padding:0}
+.datatable{position:absolute;inset:150px 84px 80px;background:#fff;border:1px solid var(--rule);border-radius:14px;padding:18px 24px;overflow:auto;display:none;z-index:20;box-shadow:0 10px 40px rgba(0,0,0,.18)}
+.datatable.show{display:block}
+.datatable table{border-collapse:collapse;width:100%;font-size:16px;font-variant-numeric:tabular-nums}
+.datatable th,.datatable td{padding:7px 10px;border-bottom:1px solid var(--rule);text-align:right}
+.datatable th:first-child,.datatable td:first-child{text-align:left}
+.datatable th{color:var(--muted);font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.04em}
+
+/* ---------- gallery lineup ---------- */
+.lineup{display:grid;grid-template-columns:repeat(7,1fr);gap:14px;margin-top:24px}
+.tile{background:#fff;border:1px solid var(--rule);border-radius:12px;overflow:hidden;cursor:zoom-in;transition:transform .15s,box-shadow .15s}
+.tile:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.12)}
+.tile img{width:100%;aspect-ratio:1040/1300;object-fit:cover;display:block;background:#eee}
+.tile .cap{padding:7px 9px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;line-height:1.2}
+.tile .cap .dot{width:9px;height:9px}
+.tile .missing{aspect-ratio:1040/1300;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;color:var(--muted);background:var(--paper-2);padding:10px}
+
+/* ---------- report card ---------- */
+table.rc{border-collapse:separate;border-spacing:0;width:100%;margin-top:24px;font-size:17px}
+table.rc th{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 12px 10px}
+table.rc td{padding:7px 12px;border-top:1px solid var(--rule);vertical-align:middle}
+table.rc tr:hover td{background:#fff}
+table.rc td:first-child{font-weight:600;cursor:pointer;white-space:nowrap}
+.lvl{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.pips{display:inline-flex;gap:3px}
+.pips i{width:14px;height:14px;border-radius:3px;background:var(--rule)}
+.pips i.f{background:var(--accent)}
+.na{color:var(--muted);font-style:italic}
+.surf{font-size:15px;color:var(--ink-2)}
+
+/* ---------- batting slide ---------- */
+.bat{display:grid;grid-template-columns:1fr 760px;gap:46px;height:100%}
+.bat-left{display:flex;flex-direction:column;min-width:0}
+.bat h2{font-size:56px}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+.num{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:14px 16px}
+.num b{display:block;font:600 36px/1.1 var(--serif)}
+.num span{font-size:14px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.num small{display:block;font-size:14px;color:var(--ink-2);margin-top:4px}
+.notes{margin-top:20px;font-size:19px;line-height:1.5}
+.notes dt{font-size:13px;font-weight:700;color:var(--accent-2);letter-spacing:.1em;text-transform:uppercase;margin-top:12px}
+.notes dd{margin:3px 0 0;color:var(--ink)}
+.mfr{margin-top:auto;font-size:15px;line-height:1.45;color:var(--ink-2);background:var(--paper-2);border-radius:12px;padding:12px 16px}
+.mfr b{color:var(--ink)}
+.viewer{display:flex;flex-direction:column;height:100%;min-height:0}
+.stage-tabs{display:flex;gap:6px;margin-bottom:12px}
+.stage-tabs button{flex:1;border:1px solid var(--rule);background:#fff;border-radius:10px;padding:8px 6px;font-size:15px;cursor:pointer;line-height:1.2}
+.stage-tabs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.stage-tabs button:disabled{opacity:.4;cursor:default}
+.stage-tabs button small{display:block;font-size:12px;opacity:.75}
+.mainimg{flex:1;min-height:0;position:relative;display:flex;justify-content:center;cursor:zoom-in}
+.mainimg img{height:100%;width:auto;max-width:100%;object-fit:contain;display:block;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.10)}
+.mainimg .missing{position:absolute;inset:0;background:var(--paper-2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--muted);text-align:center;padding:40px;cursor:default}
+.orig-toggle{position:absolute;right:12px;bottom:12px;font-size:14px;background:rgba(255,255,255,.9);border:1px solid var(--rule);border-radius:8px;padding:6px 10px;cursor:pointer}
+.photo-note{position:absolute;left:12px;bottom:12px;font-size:13px;background:rgba(255,255,255,.9);border-radius:8px;padding:6px 10px;color:var(--ink-2)}
+
+/* ---------- compare ---------- */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:20px}
+.cmp-col{display:flex;flex-direction:column;gap:12px}
+.cmp-img{height:470px;cursor:zoom-in;position:relative;display:flex;justify-content:center}
+.cmp-img img{height:100%;width:auto;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.10)}
+.cmp-stats{display:flex;gap:22px;font-size:17px;color:var(--ink-2)}
+.cmp-stats b{font:600 24px var(--serif);color:var(--ink);display:block}
+
+/* ---------- takeaways ---------- */
+.ta{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:34px}
+.ta .card{background:#fff;border:1px solid var(--rule);border-radius:16px;padding:22px 24px}
+.ta .card .ic{font-size:34px;line-height:1}
+.ta .card h4{font:600 25px var(--serif);margin:10px 0 8px}
+.ta .card p{font-size:18px;line-height:1.5;color:var(--ink-2)}
+.ta .card .who{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.ta .card .who span{font-size:15px;font-weight:600;background:var(--accent-soft);color:var(--accent);padding:4px 10px;border-radius:999px;cursor:pointer}
+
+.section-slide{background:var(--accent);color:#fff}
+.section-slide::before{border-color:rgba(255,255,255,.25)}
+.section-slide h2{color:#fff;font-size:84px}
+.section-slide .kicker{color:#f2c7b8}
+.section-slide .lede{color:rgba(255,255,255,.85)}
+.section-slide .foot{color:rgba(255,255,255,.6)}
+
+ul.fine{font-size:20px;line-height:1.55;color:var(--ink-2);padding-left:24px;margin:24px 0 0;max-width:1300px}
+ul.fine li{margin-bottom:10px}
+ul.fine b{color:var(--ink)}
+
+/* ---------- chrome: nav, progress, overview, lightbox ---------- */
+#progress{position:fixed;left:0;top:0;height:4px;background:var(--accent-2);transition:width .3s;z-index:60}
+#nav{position:fixed;right:18px;bottom:16px;display:flex;gap:8px;align-items:center;z-index:60;opacity:.25;transition:opacity .2s}
+#nav:hover{opacity:1}
+#nav button{background:rgba(255,255,255,.92);border:none;border-radius:10px;width:42px;height:42px;font-size:18px;cursor:pointer}
+#nav .count{color:#fff;font-size:14px;min-width:60px;text-align:center}
+#help{position:fixed;left:18px;bottom:18px;color:rgba(255,255,255,.55);font-size:13px;z-index:60;transition:opacity .4s}
+#overview{position:fixed;inset:0;background:rgba(30,28,26,.96);z-index:80;display:none;overflow:auto;padding:40px}
+#overview.show{display:block}
+#overview .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+#overview .ov{background:var(--paper);border-radius:10px;padding:14px 16px;cursor:pointer;min-height:110px;border:3px solid transparent}
+#overview .ov.cur{border-color:var(--accent-2)}
+#overview .ov small{color:var(--muted);font-weight:700}
+#overview .ov div{font:600 19px/1.25 var(--serif);margin-top:6px}
+#overview h3{color:#fff;margin-bottom:20px}
+#lightbox{position:fixed;inset:0;background:rgba(20,18,16,.95);z-index:90;display:none;align-items:center;justify-content:center;flex-direction:column}
+#lightbox.show{display:flex}
+#lightbox img{max-width:92vw;max-height:80vh;object-fit:contain;border-radius:8px;background:#ece7de}
+#lightbox .lb-cap{color:#fff;font-size:20px;margin-top:16px;font-family:var(--serif);text-align:center}
+#lightbox .lb-cap small{display:block;font-family:var(--sans);font-size:14px;color:rgba(255,255,255,.65);margin-top:4px}
+#lightbox .lb-bar{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+#lightbox .lb-bar button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:7px 12px;font-size:15px;cursor:pointer}
+#lightbox .lb-bar button.on{background:#fff;color:#222}
+#lightbox .lb-bar button:disabled{opacity:.3}
+#lightbox .x{position:absolute;top:16px;right:22px;background:none;border:none;color:#fff;font-size:38px;cursor:pointer}
+@media print{#nav,#help,#progress{display:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="viewport"><div id="deck"></div></div>
+<div id="nav">
+  <button id="ovBtn" title="All slides (G)">▦</button>
+  <button id="prevBtn" title="Previous (←)">‹</button>
+  <span class="count" id="count"></span>
+  <button id="nextBtn" title="Next (→)">›</button>
+  <button id="fsBtn" title="Full screen (F)">⛶</button>
+</div>
+<div id="help">← → to move · G for all slides · F for full screen · click any photo to enlarge</div>
+<div id="overview"><h3>All slides</h3><div class="grid"></div></div>
+<div id="lightbox"><button class="x" aria-label="Close">×</button><img alt=""><div class="lb-cap"></div><div class="lb-bar"></div></div>
+<div class="tip" id="tip"></div>
+
+<script>
+/* ======================= DATA (from Quilters_Dream_Batting_Wash_Test_Tracker.xlsx) ======================= */
+const FAM = {
+  cotton:  {label:"100% Cotton",        color:"var(--cotton)",  hex:"#2a78d6"},
+  blend:   {label:"Cotton/Poly Blends", color:"var(--blend)",   hex:"#eb6834"},
+  poly:    {label:"Polyester",          color:"var(--poly)",    hex:"#1baf7a"},
+  special: {label:"Specialty",          color:"var(--special)", hex:"#4a3aa7"},
+};
+const STAGES = [
+  {short:"Creased",        long:"Folded & creased",           date:"Sep 23"},
+  {short:"Steamed",        long:"After steaming",             date:"Sep 28"},
+  {short:"Draped",         long:"Draped on chair (before wash)", date:"Sep 28"},
+  {short:"Washed",         long:"After washing & drying",     date:"Oct 8"},
+  {short:"Washed, draped", long:"Draped on chair (after wash)", date:"Oct 8"},
+];
+// drape/def: 3 high · 2 medium · 1 low · null not noted
+const B = [
+ {id:"cotton-request", name:"Cotton Request", fam:"cotton", w0:30.75,l0:40.5, w1:29.75,l1:39.5, loose:30,   dense:29.5,
+  drape:"Very drapey.", def:"Did not have much quilting definition.", surf:"Not much quilting definition; cotton crinkle not specifically noted.",
+  dr:3, df:1, sf:"Little texture", cost:"Lower", stock:false,
+  mfr:{fiber:"100% USA cotton, needle-punched; no scrim or binder", loft:"Low loft; lightweight — made for hand quilting", dist:"8 in.", shrink:3, shrinkTxt:"≈1% cold/air dry · 3% warm/warm dry"}},
+ {id:"cotton-select", name:"Cotton Select", fam:"cotton", w0:31,l0:41.5, w1:30.25,l1:40, loose:30.25,dense:30,
+  drape:"Better drape after washing.", def:null, surf:"Some crinkle look, especially in the dense quilting.",
+  dr:2, df:null, sf:"Cotton crinkle (esp. dense areas)", cost:"Middle", stock:true,
+  mfr:{fiber:"100% USA cotton, needle-punched; no scrim or binder", loft:"Mid loft; most popular, soft drape", dist:"8 in.", shrink:3, shrinkTxt:"≈1% cold/air dry · 3% warm/warm dry"}},
+ {id:"cotton-deluxe", name:"Cotton Deluxe", fam:"cotton", w0:30.5,l0:41.25, w1:29.5,l1:39.5, loose:29.5,dense:29.5,
+  drape:"Pretty stiff drape before and after quilting.", def:"Very defined, especially after washing.", surf:"Some crinkle.",
+  dr:1, df:3, sf:"Some cotton crinkle", cost:"Higher", stock:false,
+  mfr:{fiber:"100% USA cotton, needle-punched; no scrim or binder", loft:"Weighty loft; adds warmth & volume", dist:"8 in.", shrink:3, shrinkTxt:"≈1% cold/air dry · 3% warm/warm dry"}},
+ {id:"cotton-supreme", name:"Cotton Supreme", fam:"cotton", w0:30.5,l0:41.5, w1:29.25,l1:39.25, loose:29.5,dense:29,
+  drape:"Stiff drape before and after washing.", def:"Defined, especially after washing.", surf:"Some crinkle.",
+  dr:1, df:3, sf:"Some cotton crinkle", cost:"Highest", stock:false,
+  mfr:{fiber:"100% USA cotton, needle-punched; ½ lb cotton per sq. yd.", loft:"Highest cotton loft; hefty, dense, very warm", dist:"8 in.", shrink:3, shrinkTxt:"≈1% cold/air dry · 3% warm/warm dry"}},
+ {id:"blend-8020", name:"80/20 Select", fam:"blend", w0:30.75,l0:41.5, w1:30,l1:40, loose:30,dense:29.5,
+  drape:"Similar overall results to 100% Cotton Select.", def:null, surf:"Similar to Cotton Select.",
+  dr:2, df:null, sf:"Like Cotton Select", cost:"Middle", stock:true,
+  mfr:{fiber:"80% cotton / 20% fine-denier polyester", loft:"Select loft; soft, smooth, consistent", dist:"see product guide", shrink:null, shrinkTxt:"Not stated in the guide we used"}},
+ {id:"blend-7030", name:"Blend 70/30", fam:"blend", w0:31.25,l0:42, w1:30,l1:40, loose:30.5,dense:29.75,
+  drape:"Better drape after washing.", def:"Some quilting definition.", surf:"A bit of crinkle.",
+  dr:2, df:2, sf:"A bit of crinkle", cost:"Middle", stock:false,
+  mfr:{fiber:"70% cotton / 30% poly on an ultralight scrim", loft:"Mid loft; drapeable yet stable", dist:"12 in.", shrink:3, shrinkTxt:"≈1% cold/air dry · 3% warm/warm dry"}},
+ {id:"poly-request", name:"Poly Request", fam:"poly", w0:30.5,l0:41.5, w1:29.75,l1:40, loose:30,dense:29.25,
+  drape:"Better drape after washing.", def:null, surf:"Shrinkage did not create the cotton-crinkle look; the surface looks different from cotton crinkle.",
+  dr:2, df:null, sf:"Poly-style (no crinkle)", cost:"Lowest", stock:false,
+  mfr:{fiber:"Fine-denier polyester microfibers, needle-punched", loft:"Low loft; very light and soft", dist:"12 in.", shrink:1, shrinkTxt:"None cold/air dry · ≈1% warm/warm dry"}},
+ {id:"poly-select", name:"Poly Select", fam:"poly", w0:30.5,l0:40.75, w1:29.75,l1:40, loose:30.25,dense:29.5,
+  drape:"Not very good drape before or after washing.", def:null, surf:"Shrinkage did not create cotton-style crinkle; fabric looks somewhat baggy in unquilted areas.",
+  dr:1, df:null, sf:"Poly-style; baggy unquilted areas", cost:"Lower", stock:false,
+  mfr:{fiber:"Fine-denier polyester microfibers, needle-punched", loft:"Mid loft; emphasizes stitch definition", dist:"12 in.", shrink:1, shrinkTxt:"None cold/air dry · ≈1% warm/warm dry"}},
+ {id:"poly-deluxe", name:"Poly Deluxe", fam:"poly", w0:30.5,l0:41.5, w1:30,l1:40.25, loose:30,dense:29.5,
+  drape:"Similar results to Poly Select.", def:null, surf:"Similar to Poly Select: shrinkage, but not cotton-style crinkle.",
+  dr:1, df:null, sf:"Poly-style; baggy unquilted areas", cost:"Middle", stock:false,
+  mfr:{fiber:"Fine-denier polyester microfibers, needle-punched", loft:"Weighty loft; adds volume and warmth", dist:"12 in.", shrink:1, shrinkTxt:"None cold/air dry · ≈1% warm/warm dry"}},
+ {id:"green", name:"Dream Green", fam:"poly", w0:30.75,l0:41.5, w1:30,l1:39.75, loose:30,dense:29.5,
+  drape:"Pretty good drape.", def:"Some quilting definition.", surf:"Only a bit of the same surface effect seen with the poly battings.",
+  dr:2, df:2, sf:"Slight poly-style", cost:"Lower", stock:false, missing5:true,
+  mfr:{fiber:"100% recycled plastic bottles (recycled polyester)", loft:"Mid loft; soft, emphasizes stitch definition", dist:"12 in.", shrink:1, shrinkTxt:"None cold/air dry · ≈1% warm/warm dry"}},
+ {id:"bamboo", name:"Dream Bamboo", fam:"special", w0:31,l0:41.5, w1:30.25,l1:40, loose:30.25,dense:29.5,
+  drape:"More drape after washing.", def:"Some quilting definition.", surf:"A bit of crinkle.",
+  dr:2, df:2, sf:"A bit of crinkle", cost:"Higher", stock:true,
+  mfr:{fiber:"Bamboo, silk, cotton & Tencel® blend", loft:"Select loft; silky-soft drape", dist:"8 in.", shrink:null, shrinkTxt:"“Minimal” — no % given"}},
+ {id:"wool", name:"Dream Wool", fam:"special", w0:30.5,l0:42, w1:30,l1:40, loose:30,dense:29.5,
+  drape:"Decent drape.", def:"Defined quilting.", surf:"A bit of crinkle.",
+  dr:2, df:3, sf:"A bit of crinkle", cost:"High", stock:true,
+  mfr:{fiber:"Super-washed domestic & Merino wool, thermally bonded", loft:"≈⅓ in. loft; light, warm, drapeable", dist:"8 in.", shrink:0, shrinkTxt:"“No shrinkage”"}},
+ {id:"puff", name:"Dream Puff", fam:"special", w0:30.5,l0:42, w1:29.75,l1:40.5, loose:30,dense:29.75,
+  drape:"Did not have much drape; fabric stayed nice and smooth rather than floppy.", def:"Lots of quilting definition both before and after washing.", surf:"Some crinkle look.",
+  dr:1, df:3, sf:"Some crinkle", cost:"Middle", stock:false,
+  mfr:{fiber:"Carded, crosslapped, thermally bonded fibers", loft:"⅓–½ in. loft; very light, lofty, warm", dist:"8 in.", shrink:0, shrinkTxt:"“0% shrinkage”"}},
+ {id:"angel", name:"Dream Angel", fam:"special", w0:31,l0:42, w1:30,l1:40, loose:30.25,dense:30,
+  drape:"Very drapey.", def:"Did not have quilting definition.", surf:"Looked much like the poly battings after washing.",
+  dr:3, df:1, sf:"Poly-style", cost:"Higher", stock:false,
+  mfr:{fiber:"100% flame-retardant fibers, needle-punched", loft:"Mid loft; soft, breathable", dist:"6 in.", shrink:3, shrinkTxt:"≈1% cold/air dry · 3% warm/warm dry"}},
+];
+B.forEach(b=>{
+  b.wPct=(b.w0-b.w1)/b.w0*100; b.lPct=(b.l0-b.l1)/b.l0*100;
+  b.aPct=(1-(b.w1*b.l1)/(b.w0*b.l0))*100; b.avgPct=(b.wPct+b.lPct)/2;
+  b.wIn=b.w0-b.w1; b.lIn=b.l0-b.l1; b.ld=b.loose-b.dense;
+});
+const byId=Object.fromEntries(B.map(b=>[b.id,b]));
+const img=(id,s,orig)=>`images/${id}_${s}${orig?"_orig":""}.jpg`;
+const hasPhoto=(b,s)=>!(b.missing5&&s===5);
+const SHARED_NOTE={ "poly-deluxe_3":"Same photo is filed under Poly Select", "poly-select_3":"Same photo is filed under Poly Deluxe" };
+const f1=v=>v.toFixed(1), fIn=v=>{const w=Math.floor(v+1e-9),r=v-w;const fr={0:"",0.25:"¼",0.5:"½",0.75:"¾"}[Math.round(r*4)/4]??"";return (w?w:"")+(fr?fr:(w?"":"0"))+"″"};
+const famDot=f=>`<span class="dot" style="background:${FAM[f].color}"></span>`;
+
+/* ======================= SLIDES ======================= */
+const slides=[];
+const S=(title,html,cls="",init)=>slides.push({title,html,cls,init});
+const foot=()=>`<div class="foot"><span>Quilters Dream batting wash test · Fall 2026</span><span class="pg"></span></div>`;
+
+// 1 · Title
+S("Title",`<div class="title-grid">
+  <div><div class="kicker">Guild special presentation</div>
+  <h1>What happens to batting in the wash?</h1>
+  <p class="lede" style="font-size:27px">Fourteen Quilters Dream battings, quilted the same way, then creased, steamed, draped, washed and measured.</p>
+  <div class="meta" style="margin-top:30px">${Object.values(FAM).map(f=>`<span class="chip"><span class="dot" style="background:${f.color}"></span>${f.label}</span>`).join("")}</div></div>
+  <div class="title-mosaic">${["cotton-supreme","angel","wool","blend-7030","puff","poly-select","bamboo","cotton-request"].map((id,i)=>`<img src="${img(id,i%2?5:4)}" alt="">`).join("")}</div>
+</div>${foot()}`,"title-slide");
+
+// 2 · The experiment
+S("How the test worked",`<div class="kicker">The experiment</div><h2>Same quilt, fourteen battings, five checkpoints</h2>
+<div class="steps">${STAGES.map((s,i)=>`<div class="step"><img src="${img("cotton-select",i+1)}" alt=""><div class="b"><div class="n">STEP ${i+1} · ${s.date}</div><h4>${s.long}</h4><p>${[
+ "Each sample was folded and stored to set hard creases, then hung and photographed.",
+ "Creases were steamed out with a high-quality steamer, then re-photographed.",
+ "Draped over the same chair arm to compare hand and drape before washing.",
+ "Quick wash in warm water — no detergent — then tumble-dried on permanent press. Re-measured.",
+ "Draped over the same chair again to see how washing changed the drape."][i]}</p></div></div>`).join("")}</div>
+<div class="facts">
+ <div class="fact"><b>≈ 30½″ × 41½″</b><span>sample size before washing</span></div>
+ <div class="fact"><b>Two densities</b><span>larger pebbles on one end, dense pebbles on the other</span></div>
+ <div class="fact"><b>Warm · no soap</b><span>quick wash, permanent-press dry</span></div>
+ <div class="fact"><b>Width & length</b><span>measured before and after, to the ¼″</span></div>
+</div>${foot()}`);
+
+// 3 · Lineup
+S("Meet the battings",`<div class="kicker">The lineup</div><h2>Meet the fourteen battings</h2>
+<p class="lede">Click any batting to jump to its full results. <span class="stock">In stock</span> marks the ones carried in the shop today.</p>
+<div class="fam-cols">${Object.entries(FAM).map(([k,f])=>`<div class="fam"><h3>${famDot(k)}${f.label}</h3>${B.filter(b=>b.fam===k).map(b=>`<div class="bcard" data-goto="bat-${b.id}"><img src="${img(b.id,4)}" alt=""><div><b>${b.name}${b.stock?'<span class="stock">In stock</span>':""}</b><small>${b.mfr.loft.split(";")[0]} · ${b.cost} cost</small></div></div>`).join("")}</div>`).join("")}</div>${foot()}`);
+
+// 4 · Steam
+S("Steam erases creases",`<div class="kicker">Checkpoint 1 → 2</div><h2>Every crease steamed out — on every batting</h2>
+<div class="wipe-wrap"><div class="side-note">
+ <div class="big">Fold lines from storage aren’t a reason to avoid any of these battings.</div>
+ <p>After a good steaming, creasing went away on <b>all fourteen</b> samples — cotton, poly, wool and specialty alike.</p>
+ <p style="margin-top:18px">Click a photo to enlarge it. Pick another batting:</p>
+ <p style="margin-top:12px"><select class="pick" data-wipe="steam">${B.map(b=>`<option value="${b.id}">${b.name}</option>`).join("")}</select></p>
+</div><div class="pair" data-wipe-el="steam" data-a="1" data-b="2" data-id="cotton-select"></div></div>${foot()}`,"",initWipes);
+
+// 5 · Shrinkage chart
+S("How much did they shrink?",`<div class="kicker">The measurements</div><h2>How much did each sample shrink?</h2>
+<div class="controls"><label>Show</label><div class="seg" data-metric-seg>
+ <button class="btn on" data-m="aPct">Overall area %</button><button class="btn" data-m="wPct">Width %</button><button class="btn" data-m="lPct">Length %</button><button class="btn" data-m="lIn">Length lost (in.)</button></div>
+ <div class="legend" data-legend="shrink"></div><button class="tablebtn" data-table="shrinkTable">View as table</button></div>
+<div class="chart-row"><div data-chart="shrink"></div>
+<div><div class="callout"><h4>Everything shrank</h4>Every sample came out smaller — from about <b>4% to 9%</b> in total area. Length shrank more than width on 12 of the 14.</div>
+<div class="callout"><h4>Loft matters in cotton</h4>Among the cottons, the heavier the loft, the more it shrank: <b>Supreme</b> (the most of any batting) › Deluxe › Select › Request.</div></div></div>
+<div class="datatable" id="shrinkTable"></div>${foot()}`,"",initShrink);
+
+// 6 · Measured vs manufacturer
+S("Measured vs. the label",`<div class="kicker">Reality check</div><h2>Measured shrinkage vs. what the label says</h2>
+<p class="lede" style="font-size:21px;margin-top:10px">Each sample’s average width & length shrinkage, next to the manufacturer’s figure for a warm wash & dry.</p>
+<div class="chart-row" style="margin-top:14px"><div data-chart="mfr"></div>
+<div><div class="callout"><h4>Why the gap?</h4>We measured the <b>whole quilt</b>: top fabric, backing, thread <i>and</i> batting. Batting that “doesn’t shrink” still rides along when the cotton fabric around it draws up.</div>
+<div class="callout"><h4>So what?</h4>Even wool, Puff and the polys came out about 2–3½% smaller. If finished size matters, <b>plan for some shrinkage</b> no matter which batting you pick.</div></div></div>${foot()}`,"",initMfr);
+
+// 7 · Loose vs dense
+S("Quilting density",`<div class="kicker">Quilting density</div><h2>Dense quilting draws the quilt in more</h2>
+<p class="lede" style="font-size:21px;margin-top:10px">After washing, the width was measured at the loosely quilted end and at the densely quilted end. The bar shows how much narrower the dense end was.</p>
+<div class="chart-row" style="margin-top:14px"><div data-chart="ld"></div>
+<div><div class="callout"><h4>Never the other way</h4>On <b>13 of 14</b> samples the dense end ended up narrower; Cotton Deluxe came out even. None was wider at the dense end.</div>
+<div class="callout"><h4>For your quilts</h4>Uneven quilting density can wash into a slightly wavy or “waisted” edge. Balanced density across a quilt helps it stay square.</div></div></div>${foot()}`,"",initLD);
+
+// 8 · Drape lineup
+S("The drape lineup",`<div class="kicker">Drape & hand</div><h2>Side by side on the chair</h2>
+<div class="controls"><div class="seg" data-drape-seg><button class="btn" data-s="3">Before washing</button><button class="btn on" data-s="5">After washing</button></div><span style="font-size:16px;color:var(--muted)">Click any photo to enlarge</span></div>
+<div class="lineup" data-lineup="drape"></div>${foot()}`,"",initLineup);
+
+// 9 · Wash texture wipe
+S("Before & after the wash",`<div class="kicker">Checkpoint 2 → 4</div><h2>What washing does to the surface</h2>
+<div class="wipe-wrap"><div class="side-note">
+ <div class="big">Cotton crinkles. Polyester just gets smaller.</div>
+ <p>The cottons and natural fibers took on that soft, vintage <b>crinkle</b>. The poly battings shrank too, but looked different — flatter, and a little <b>baggy</b> in unquilted spots.</p>
+ <p style="margin-top:18px">Steamed (before washing) on the left, washed on the right:</p>
+ <p style="margin-top:12px"><select class="pick" data-wipe="wash">${B.map(b=>`<option value="${b.id}"${b.id==="cotton-supreme"?" selected":""}>${b.name}</option>`).join("")}</select></p>
+</div><div class="pair" data-wipe-el="wash" data-a="2" data-b="4" data-id="cotton-supreme"></div></div>${foot()}`,"",initWipes);
+
+// 10 · Report card
+S("Report card",`<div class="kicker">At a glance</div><h2>The report card</h2>
+<table class="rc"><thead><tr><th>Batting</th><th>Drape after washing</th><th>Quilting definition</th><th>Surface after washing</th><th style="text-align:right">Area shrink</th><th>Cost tier</th></tr></thead><tbody>
+${B.map(b=>`<tr><td data-goto="bat-${b.id}"><span class="lvl">${famDot(b.fam)}${b.name}${b.stock?'<span class="stock">In stock</span>':""}</span></td><td>${lvl(b.dr,["","Stiff / low","Good","Very drapey"])}</td><td>${lvl(b.df,["","Little","Some","Strong"])}</td><td class="surf">${b.sf}</td><td style="text-align:right;font-variant-numeric:tabular-nums">${f1(b.aPct)}%</td><td class="surf">${b.cost}</td></tr>`).join("")}
+</tbody></table>
+<p style="font-size:14px;color:var(--muted);margin-top:10px">Ratings summarize the tester’s written notes. “Not noted” means the notes didn’t comment on it.</p>${foot()}`);
+function lvl(v,labels){ if(v==null) return `<span class="na">Not noted</span>`; return `<span class="lvl"><span class="pips">${[1,2,3].map(i=>`<i class="${i<=v?"f":""}"></i>`).join("")}</span>${labels[v]}</span>`; }
+
+// 11 · Section
+S("Batting by batting",`<div style="display:flex;flex-direction:column;justify-content:center;height:100%"><div class="kicker">Part two</div><h2>Batting by batting</h2><p class="lede">Each sample through all five checkpoints. Use the step buttons or the number keys <b>1–5</b> to flip through the photos; click a photo to see it full screen.</p></div>${foot()}`,"section-slide");
+
+// 12+ · Batting slides
+B.forEach(b=>S(b.name,`<div class="bat" data-bat="${b.id}"><div class="bat-left">
+ <div class="kicker" style="color:${FAM[b.fam].color}">${FAM[b.fam].label}</div>
+ <h2>${b.name}</h2>
+ <div class="meta"><span class="chip">${b.mfr.loft.split(";")[0]}</span><span class="chip">Cost tier: ${b.cost}</span>${b.stock?'<span class="chip" style="background:var(--accent);color:#fff">In stock</span>':'<span class="chip">Special order</span>'}</div>
+ <div class="nums">
+  <div class="num"><span>Width</span><b>−${f1(b.wPct)}%</b><small>${b.w0}″ → ${b.w1}″</small></div>
+  <div class="num"><span>Length</span><b>−${f1(b.lPct)}%</b><small>${b.l0}″ → ${b.l1}″</small></div>
+  <div class="num"><span>Dense vs loose end</span><b>${b.ld?("−"+fIn(b.ld)):"Even"}</b><small>${b.loose}″ loose · ${b.dense}″ dense</small></div>
+ </div>
+ <dl class="notes">
+  <dt>Drape & feel</dt><dd>${b.drape}</dd>
+  ${b.def?`<dt>Quilting definition</dt><dd>${b.def}</dd>`:""}
+  <dt>Surface after washing</dt><dd>${b.surf}</dd>
+ </dl>
+ <div class="mfr"><b>From the manufacturer:</b> ${b.mfr.fiber}. ${b.mfr.loft}. Quilt up to <b>${b.mfr.dist}</b> apart. Stated shrinkage: ${b.mfr.shrinkTxt}.</div>
+</div>
+<div class="viewer"><div class="stage-tabs">${STAGES.map((s,i)=>`<button data-st="${i+1}" ${hasPhoto(b,i+1)?"":"disabled"} class="${i===0?"on":""}">${i+1}. ${s.short}<small>${s.date}</small></button>`).join("")}</div>
+<div class="mainimg"><img src="${img(b.id,1)}" alt="${b.name}, ${STAGES[0].long}"><button class="orig-toggle">Show original photo</button></div></div></div>${foot()}`,"",initBat));
+
+// Compare
+S("Compare any two",`<div class="kicker">Your turn</div><h2>Compare any two battings</h2>
+<div class="controls"><label>Checkpoint</label><div class="seg" data-cmp-seg>${STAGES.map((s,i)=>`<button class="btn ${i===3?"on":""}" data-s="${i+1}">${s.short}</button>`).join("")}</div></div>
+<div class="cmp">${[["cotton-supreme"],["angel"]].map(([d],k)=>`<div class="cmp-col" data-cmp-col="${k}"><select class="pick">${B.map(b=>`<option value="${b.id}"${b.id===d?" selected":""}>${b.name}</option>`).join("")}</select><div class="cmp-img"><img alt=""></div><div class="cmp-stats"></div></div>`).join("")}</div>${foot()}`,"",initCompare);
+
+// Takeaways
+const who=ids=>`<div class="who">${ids.map(i=>`<span data-goto="bat-${i}">${byId[i].name}</span>`).join("")}</div>`;
+S("Choosing a batting",`<div class="kicker">Takeaways</div><h2>Choosing a batting for the look you want</h2>
+<div class="ta">
+ <div class="card"><div class="ic">🌊</div><h4>Soft, drapey throw</h4><p>Flows over a lap or the back of a couch.</p>${who(["cotton-request","angel","green","cotton-select","bamboo","blend-7030"])}</div>
+ <div class="card"><div class="ic">✳️</div><h4>Quilting that pops</h4><p>Crisp, sculpted stitch definition that shows off the quilting.</p>${who(["puff","cotton-deluxe","cotton-supreme","wool"])}</div>
+ <div class="card"><div class="ic">🧺</div><h4>Vintage crinkle</h4><p>That soft, puckered, washed-and-loved texture.</p>${who(["cotton-select","cotton-deluxe","cotton-supreme","puff","blend-8020"])}</div>
+ <div class="card"><div class="ic">📏</div><h4>Keep it closest to size</h4><p>Smallest overall area change in this test.</p>${who(B.slice().sort((a,b)=>a.aPct-b.aPct).slice(0,3).map(b=>b.id))}</div>
+ <div class="card"><div class="ic">🧱</div><h4>Body & structure</h4><p>Stands up on its own — great for wall hangings, bags and table runners.</p>${who(["cotton-supreme","cotton-deluxe","puff","poly-deluxe"])}</div>
+ <div class="card"><div class="ic">✂️</div><h4>Plan for shrinkage</h4><p>Every sample shrank about 2–5½% in length. If size matters, quilt a little larger — and keep quilting density even.</p></div>
+</div>${foot()}`);
+
+// Fine print
+S("Fine print",`<div class="kicker">The fine print</div><h2>About these results</h2>
+<ul class="fine">
+ <li><b>One sample each.</b> These are hands-on results from one sample quilt per batting, washed once. They show trends, not guarantees or manufacturer specifications.</li>
+ <li><b>Whole-quilt measurements.</b> Shrinkage includes the top fabric, backing and thread, not batting alone. Fabric and thread details weren’t recorded.</li>
+ <li><b>One wash method.</b> Quick wash in warm water, no detergent, tumble-dried on permanent press. Cold water or air-drying would likely shrink less.</li>
+ <li><b>Dense vs loose widths</b> were measured only after washing, so they show how the two ends finished, not how much each end shrank.</li>
+ <li><b>Photos</b> have had backgrounds tidied for easier viewing; the quilts are untouched. Click “Show original photo” on any batting slide to see the unedited shot. Dream Green has no photo for the final step.</li>
+ <li><b>Manufacturer figures</b> are from Quilters Dream’s product pages and user guide (checked October 2026).</li>
+</ul>
+<h3 style="margin-top:40px;font-size:44px;color:var(--accent)">Questions?</h3>${foot()}`);
+
+/* ======================= RENDER & NAV ======================= */
+const deck=document.getElementById("deck");
+slides.forEach((s,i)=>{
+  const el=document.createElement("section"); el.className="slide "+s.cls; el.innerHTML=s.html; el.dataset.i=i;
+  const bat=s.html.match(/data-bat="([^"]+)"/); el.id=bat?("bat-"+bat[1]):("s"+i);
+  el.querySelector(".pg")&&(el.querySelector(".pg").textContent=`${i+1} / ${slides.length}`);
+  deck.appendChild(el); s.el=el;
+});
+let cur=0;
+function fit(){const sc=Math.min(innerWidth/1600,innerHeight/900);deck.style.transform=`scale(${sc})`;deck.dataset.scale=sc;}
+addEventListener("resize",fit); fit();
+function go(i,push=true){
+  i=Math.max(0,Math.min(slides.length-1,i));
+  slides[cur].el.classList.remove("active"); cur=i; const s=slides[i];
+  s.el.classList.add("active");
+  if(s.init&&!s.inited){s.init(s.el);s.inited=true;}
+  document.getElementById("count").textContent=`${i+1} / ${slides.length}`;
+  document.getElementById("progress").style.width=((i+1)/slides.length*100)+"%";
+  if(push) history.replaceState(null,"","#"+(i+1));
+  hideTip();
+}
+document.addEventListener("click",e=>{const g=e.target.closest("[data-goto]");if(g){const el=document.getElementById(g.dataset.goto);if(el)go(+el.dataset.i);}});
+document.getElementById("prevBtn").onclick=()=>go(cur-1);
+document.getElementById("nextBtn").onclick=()=>go(cur+1);
+document.getElementById("fsBtn").onclick=toggleFS;
+function toggleFS(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();}
+const ov=document.getElementById("overview");
+document.getElementById("ovBtn").onclick=toggleOv;
+function toggleOv(){
+  if(ov.classList.toggle("show")){
+    ov.querySelector(".grid").innerHTML=slides.map((s,i)=>`<div class="ov ${i===cur?"cur":""}" data-i="${i}"><small>${i+1}</small><div>${s.title}</div></div>`).join("");
+  }
+}
+ov.addEventListener("click",e=>{const o=e.target.closest(".ov");if(o){go(+o.dataset.i);ov.classList.remove("show");}else if(e.target===ov)ov.classList.remove("show");});
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="SELECT") return;
+  if(lb.classList.contains("show")){
+    if(e.key==="Escape")closeLB(); else if(e.key==="ArrowRight")lbStep(1); else if(e.key==="ArrowLeft")lbStep(-1);
+    return;
+  }
+  if(ov.classList.contains("show")){if(e.key==="Escape"||e.key==="g")ov.classList.remove("show");return;}
+  const k=e.key;
+  if(["ArrowRight","PageDown"," ","Enter"].includes(k)){e.preventDefault();go(cur+1);}
+  else if(["ArrowLeft","PageUp","Backspace"].includes(k)){e.preventDefault();go(cur-1);}
+  else if(k==="Home")go(0); else if(k==="End")go(slides.length-1);
+  else if(k==="f"||k==="F")toggleFS(); else if(k==="g"||k==="G")toggleOv();
+  else if(/^[1-5]$/.test(k)){const v=slides[cur].el.querySelector(`.stage-tabs button[data-st="${k}"]`);v&&!v.disabled&&v.click();}
+});
+let tx=null;
+addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
+addEventListener("touchend",e=>{if(tx==null)return;const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>60)go(cur+(d<0?1:-1));tx=null;});
+setTimeout(()=>document.getElementById("help").style.opacity=0,8000);
+
+/* ======================= TOOLTIP ======================= */
+const tip=document.getElementById("tip");
+function showTip(e,html){tip.innerHTML=html;tip.style.opacity=1;const pad=16;let x=e.clientX+pad,y=e.clientY+pad;const r=tip.getBoundingClientRect();if(x+r.width>innerWidth-8)x=e.clientX-r.width-pad;if(y+r.height>innerHeight-8)y=e.clientY-r.height-pad;tip.style.left=x+"px";tip.style.top=y+"px";}
+function hideTip(){tip.style.opacity=0;}
+const batTip=(b,extra)=>`<b>${b.name}</b><br><span style="opacity:.7">${FAM[b.fam].label}</span><br>${extra}`;
+
+/* ======================= LIGHTBOX ======================= */
+const lb=document.getElementById("lightbox"); let lbState=null;
+function openLB(id,stage){lbState={id,stage,orig:false};renderLB();lb.classList.add("show");}
+function renderLB(){
+  const b=byId[lbState.id],s=lbState.stage;
+  lb.querySelector("img").src=img(b.id,s,lbState.orig);
+  lb.querySelector(".lb-cap").innerHTML=`${b.name} — ${STAGES[s-1].long}<small>${STAGES[s-1].date}${lbState.orig?" · original, unedited photo":""}${SHARED_NOTE[b.id+"_"+s]?" · "+SHARED_NOTE[b.id+"_"+s]:""} · ← → to step through</small>`;
+  lb.querySelector(".lb-bar").innerHTML=STAGES.map((st,i)=>`<button data-s="${i+1}" class="${i+1===s?"on":""}" ${hasPhoto(b,i+1)?"":"disabled"}>${i+1}. ${st.short}</button>`).join("")+`<button data-o="1" class="${lbState.orig?"on":""}">Original photo</button>`;
+}
+function lbStep(d){const b=byId[lbState.id];let s=lbState.stage+d;if(s<1||s>5)return;if(!hasPhoto(b,s))return;lbState.stage=s;renderLB();}
+function closeLB(){lb.classList.remove("show");}
+lb.addEventListener("click",e=>{const t=e.target;if(t.classList.contains("x")||t===lb)return closeLB();if(t.dataset.s){lbState.stage=+t.dataset.s;renderLB();}if(t.dataset.o){lbState.orig=!lbState.orig;renderLB();}});
+
+/* ======================= SLIDE INITS ======================= */
+function initWipes(root){
+  root.querySelectorAll(".pair").forEach(w=>{
+    const sel=root.querySelector(`select[data-wipe="${w.dataset.wipeEl}"]`);
+    const a=+w.dataset.a,bS=+w.dataset.b;
+    const draw=id=>{w.innerHTML=[a,bS].map(s=>`<figure data-s="${s}"><img src="${img(id,s)}" alt="${byId[id].name}, ${STAGES[s-1].long}"><figcaption>${STAGES[s-1].long} · ${STAGES[s-1].date}</figcaption></figure>`).join("");
+      w.querySelectorAll("figure").forEach(f=>f.onclick=()=>openLB(id,+f.dataset.s));};
+    sel.addEventListener("change",()=>draw(sel.value));
+    sel.value=w.dataset.id; draw(w.dataset.id);
+  });
+}
+// generic horizontal bar chart
+function hbar(host,rows,{value,fmt,max,tipFn,onClick,unit=""}){
+  const W=1060,rowH=40,top=10,left=200,right=70,H=top+rows.length*rowH+34;
+  const mx=max??Math.max(...rows.map(value))*1.08; const x=v=>left+(W-left-right)*v/mx;
+  const ticks=niceTicks(mx);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img">`;
+  ticks.forEach(t=>{s+=`<line x1="${x(t)}" x2="${x(t)}" y1="${top}" y2="${H-30}" stroke="#e3dccf" stroke-width="1"/><text x="${x(t)}" y="${H-10}" font-size="14" fill="#8a837a" text-anchor="middle">${t}${unit}</text>`;});
+  rows.forEach((b,i)=>{const y=top+i*rowH, v=value(b), bw=Math.max(2,x(v)-left);
+    s+=`<g class="bar-hit" data-id="${b.id}" data-fam="${b.fam}"><rect x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent"/>
+    <text x="${left-14}" y="${y+rowH/2+6}" font-size="17" fill="#24211e" text-anchor="end">${b.name}</text>
+    ${bw>8?`<path d="M${left},${y+9} h${bw-4} a4,4 0 0 1 4,4 v${rowH-26} a4,4 0 0 1 -4,4 h-${bw-4} z" fill="${FAM[b.fam].hex}"/>`:`<rect x="${left}" y="${y+9}" width="${bw}" height="${rowH-18}" fill="${FAM[b.fam].hex}"/>`}
+    <text x="${left+bw+8}" y="${y+rowH/2+6}" font-size="16" fill="#55504a" font-variant-numeric="tabular-nums">${fmt(v)}</text></g>`;});
+  s+=`<line x1="${left}" x2="${left}" y1="${top}" y2="${H-30}" stroke="#c3c2b7"/></svg>`;
+  host.innerHTML=s;
+  host.querySelectorAll(".bar-hit").forEach(g=>{const b=byId[g.dataset.id];
+    g.addEventListener("mousemove",e=>{showTip(e,tipFn(b));host.querySelectorAll(".bar-hit").forEach(o=>o.style.opacity=o===g?1:.45);});
+    g.addEventListener("mouseleave",()=>{hideTip();host.querySelectorAll(".bar-hit").forEach(o=>o.style.opacity=1);});
+    g.addEventListener("click",()=>{hideTip();document.getElementById("bat-"+b.id)&&go(+document.getElementById("bat-"+b.id).dataset.i);});
+  });
+}
+function niceTicks(mx){const steps=[0.25,0.5,1,2,2.5,5];let st=steps.find(s=>mx/s<=6)||10;const t=[];for(let v=0;v<=mx+1e-9;v+=st)t.push(+v.toFixed(2));return t;}
+function legend(host,chartHost){
+  host.innerHTML=Object.entries(FAM).map(([k,f])=>`<span data-f="${k}">${famDot(k)}${f.label}</span>`).join("");
+  host.querySelectorAll("span").forEach(sp=>sp.addEventListener("click",()=>{sp.classList.toggle("off");const off=[...host.querySelectorAll(".off")].map(o=>o.dataset.f);
+    chartHost.querySelectorAll(".bar-hit").forEach(g=>g.style.display=off.includes(g.dataset.fam)?"none":"");}));
+}
+function initShrink(root){
+  const host=root.querySelector('[data-chart="shrink"]');
+  const labels={aPct:"Overall area shrinkage",wPct:"Width shrinkage",lPct:"Length shrinkage",lIn:"Length lost"};
+  const draw=m=>{const rows=B.slice().sort((a,b)=>b[m]-a[m]);
+    hbar(host,rows,{value:b=>b[m],fmt:v=>m==="lIn"?fIn(v):f1(v)+"%",unit:m==="lIn"?"″":"%",
+      tipFn:b=>batTip(b,`Width ${b.w0}″ → ${b.w1}″ (−${f1(b.wPct)}%)<br>Length ${b.l0}″ → ${b.l1}″ (−${f1(b.lPct)}%)<br>Area −${f1(b.aPct)}%<br><span style="opacity:.7">Click for details</span>`)});
+    legend(root.querySelector('[data-legend="shrink"]'),host);};
+  root.querySelectorAll("[data-metric-seg] button").forEach(btn=>btn.onclick=()=>{root.querySelectorAll("[data-metric-seg] button").forEach(o=>o.classList.toggle("on",o===btn));draw(btn.dataset.m);});
+  draw("aPct");
+  const tb=root.querySelector("#shrinkTable");
+  tb.innerHTML=`<table><thead><tr><th>Batting</th><th>Width before</th><th>Width after</th><th>Width %</th><th>Length before</th><th>Length after</th><th>Length %</th><th>Area %</th></tr></thead><tbody>${B.map(b=>`<tr><td>${b.name}</td><td>${b.w0}</td><td>${b.w1}</td><td>${f1(b.wPct)}</td><td>${b.l0}</td><td>${b.l1}</td><td>${f1(b.lPct)}</td><td>${f1(b.aPct)}</td></tr>`).join("")}</tbody></table><p style="margin-top:12px"><button class="btn" data-close>Close table</button></p>`;
+  root.querySelector('[data-table="shrinkTable"]').onclick=()=>tb.classList.add("show");
+  tb.addEventListener("click",e=>{if(e.target.dataset.close!==undefined)tb.classList.remove("show");});
+}
+function initMfr(root){
+  const host=root.querySelector('[data-chart="mfr"]');
+  const rows=B.slice().sort((a,b)=>b.avgPct-a.avgPct);
+  const W=1060,rowH=37,top=34,left=200,right=60,H=top+rows.length*rowH+34,mx=5.5;const x=v=>left+(W-left-right)*v/mx;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">`;
+  // legend row
+  s+=`<circle cx="${left+8}" cy="16" r="8" fill="#24211e"/><text x="${left+24}" y="21" font-size="15" fill="#55504a">Measured (dot color = family)</text>
+      <rect x="${left+300}" y="8" width="4" height="18" rx="2" fill="#a8484f"/><text x="${left+312}" y="21" font-size="15" fill="#55504a">Manufacturer, warm wash & dry</text>`;
+  [0,1,2,3,4,5].forEach(t=>s+=`<line x1="${x(t)}" x2="${x(t)}" y1="${top}" y2="${H-30}" stroke="#e3dccf"/><text x="${x(t)}" y="${H-10}" font-size="14" fill="#8a837a" text-anchor="middle">${t}%</text>`);
+  rows.forEach((b,i)=>{const y=top+i*rowH+rowH/2,v=b.avgPct,m=b.mfr.shrink;
+    s+=`<g class="bar-hit" data-id="${b.id}" data-fam="${b.fam}"><rect x="0" y="${y-rowH/2}" width="${W}" height="${rowH}" fill="transparent"/>
+    <text x="${left-14}" y="${y+6}" font-size="17" fill="#24211e" text-anchor="end">${b.name}</text>`;
+    if(m!=null){s+=`<line x1="${x(Math.min(m,v))}" x2="${x(Math.max(m,v))}" y1="${y}" y2="${y}" stroke="#c3c2b7" stroke-width="2"/><rect x="${x(m)-2}" y="${y-11}" width="4" height="22" rx="2" fill="#a8484f"/>`;}
+    else s+=`<text x="${x(v)+16}" y="${y+5}" font-size="13" fill="#8a837a">no % stated</text>`;
+    s+=`<circle cx="${x(v)}" cy="${y}" r="9" fill="${FAM[b.fam].hex}" stroke="#fbf8f2" stroke-width="2"/></g>`;});
+  s+=`</svg>`; host.innerHTML=s;
+  host.querySelectorAll(".bar-hit").forEach(g=>{const b=byId[g.dataset.id];
+    g.addEventListener("mousemove",e=>showTip(e,batTip(b,`Measured: ${f1(b.avgPct)}% avg (W ${f1(b.wPct)}%, L ${f1(b.lPct)}%)<br>Manufacturer: ${b.mfr.shrinkTxt}`)));
+    g.addEventListener("mouseleave",hideTip);
+    g.addEventListener("click",()=>{hideTip();go(+document.getElementById("bat-"+b.id).dataset.i);});});
+}
+function initLD(root){
+  const host=root.querySelector('[data-chart="ld"]');
+  hbar(host,B.slice().sort((a,b)=>b.ld-a.ld),{value:b=>b.ld,max:1,fmt:v=>v?fIn(v)+" narrower":"even",unit:"″",
+    tipFn:b=>batTip(b,`Loose end: ${b.loose}″<br>Dense end: ${b.dense}″`)});
+}
+function initLineup(root){
+  const host=root.querySelector('[data-lineup]');
+  const draw=s=>{host.innerHTML=B.map(b=>`<div class="tile" data-id="${b.id}" data-s="${s}">${hasPhoto(b,s)?`<img src="${img(b.id,s)}" alt="${b.name}">`:`<div class="missing">No photo for this step</div>`}<div class="cap">${famDot(b.fam)}${b.name}</div></div>`).join("");};
+  host.addEventListener("click",e=>{const t=e.target.closest(".tile");if(t&&hasPhoto(byId[t.dataset.id],+t.dataset.s))openLB(t.dataset.id,+t.dataset.s);});
+  root.querySelectorAll("[data-drape-seg] button").forEach(btn=>btn.onclick=()=>{root.querySelectorAll("[data-drape-seg] button").forEach(o=>o.classList.toggle("on",o===btn));draw(+btn.dataset.s);});
+  draw(5);
+}
+function initBat(root){
+  const id=root.querySelector("[data-bat]").dataset.bat,b=byId[id];
+  const box=root.querySelector(".mainimg"),im=box.querySelector("img"),og=box.querySelector(".orig-toggle");
+  let st=1,orig=false;
+  const draw=()=>{im.src=img(id,st,orig);im.alt=`${b.name}, ${STAGES[st-1].long}`;og.textContent=orig?"Show edited photo":"Show original photo";
+    box.querySelector(".photo-note")?.remove();
+    if(SHARED_NOTE[id+"_"+st])box.insertAdjacentHTML("beforeend",`<span class="photo-note">${SHARED_NOTE[id+"_"+st]}</span>`);
+    root.querySelectorAll(".stage-tabs button").forEach(x=>x.classList.toggle("on",+x.dataset.st===st));};
+  root.querySelectorAll(".stage-tabs button").forEach(x=>x.onclick=()=>{st=+x.dataset.st;draw();});
+  og.onclick=e=>{e.stopPropagation();orig=!orig;draw();};
+  box.addEventListener("click",()=>{openLB(id,st);lbState.orig=orig;renderLB();});
+  // preload this batting's photos
+  for(let s=1;s<=5;s++) if(hasPhoto(b,s)) new Image().src=img(id,s);
+}
+function initCompare(root){
+  let st=4;
+  const cols=[...root.querySelectorAll("[data-cmp-col]")];
+  const draw=()=>cols.forEach(c=>{const id=c.querySelector("select").value,b=byId[id];
+    const box=c.querySelector(".cmp-img");
+    box.innerHTML=hasPhoto(b,st)?`<img src="${img(id,st)}" alt="${b.name}">`:`<div class="missing" style="display:flex;height:100%;align-items:center;justify-content:center;color:var(--muted);font-size:20px">No photo for this step</div>`;
+    box.onclick=()=>hasPhoto(b,st)&&openLB(id,st);
+    c.querySelector(".cmp-stats").innerHTML=`<div><b>−${f1(b.wPct)}%</b>width</div><div><b>−${f1(b.lPct)}%</b>length</div><div><b>${b.dr==null?"—":["","Stiff","Good","Very drapey"][b.dr]}</b>drape</div><div><b>${b.df==null?"—":["","Little","Some","Strong"][b.df]}</b>definition</div>`;});
+  cols.forEach(c=>c.querySelector("select").addEventListener("change",draw));
+  root.querySelectorAll("[data-cmp-seg] button").forEach(btn=>btn.onclick=()=>{st=+btn.dataset.s;root.querySelectorAll("[data-cmp-seg] button").forEach(o=>o.classList.toggle("on",o===btn));draw();});
+  draw();
+}
+
+/* ======================= START ======================= */
+const start=parseInt(location.hash.slice(1))||1;
+slides[0].el.classList.add("active");
+go(start-1,false);
+addEventListener("hashchange",()=>{const n=parseInt(location.hash.slice(1));if(n&&n-1!==cur)go(n-1,false);});
+</script>
+</body>
+</html>
