@@ -209,8 +209,19 @@ table.rc td:first-child{font-weight:600;cursor:pointer;white-space:nowrap}
 .answer figcaption{font-size:18px;line-height:1.45;color:var(--ink-2)}
 .answer figcaption b{color:var(--ink)}
 .answer figcaption span{display:block;margin:6px 0 8px}
+.answer .mat{justify-content:center}
+.mat-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.mat-tile{cursor:zoom-in;text-align:center;font:600 17px var(--serif);color:var(--ink)}
+.mat-tile img{width:100%;aspect-ratio:1040/1300;object-fit:cover;border-radius:10px;display:block;margin-bottom:6px}
+.answer .mat figcaption{font-size:20px;margin-top:10px}
 .quiz.revealed .qmark{display:none}
 .answer figure[hidden]{display:none}
+
+/* ---------- QR slide ---------- */
+.qr-wrap{display:grid;grid-template-columns:1fr 640px;gap:60px;align-items:center;height:100%}
+.qr-card{background:#fff;padding:44px;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,.10);width:640px;height:640px}
+.qr-card svg{width:100%;height:100%;display:block}
+.qr-url{font:600 28px var(--serif);color:var(--accent);margin-top:28px;word-break:break-all}
 
 /* ---------- takeaways ---------- */
 .ta{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:34px}
@@ -285,11 +296,11 @@ const FAM = {
   special: {label:"Specialty",          color:"var(--special)", hex:"#4a3aa7"},
 };
 const STAGES = [
-  {short:"Creased",        long:"Folded & creased",           date:"Sep 23"},
-  {short:"Steamed",        long:"After steaming",             date:"Sep 28"},
-  {short:"Draped",         long:"Draped on chair (before wash)", date:"Sep 28"},
-  {short:"Washed",         long:"After washing & drying",     date:"Oct 8"},
-  {short:"Washed, draped", long:"Draped on chair (after wash)", date:"Oct 8"},
+  {short:"Creased",        long:"Folded & creased"},
+  {short:"Steamed",        long:"After steaming"},
+  {short:"Draped",         long:"Draped on chair (before wash)"},
+  {short:"Washed",         long:"After washing & drying"},
+  {short:"Washed, draped", long:"Draped on chair (after wash)"},
 ];
 // drape/def: 3 high · 2 medium · 1 low · null not noted
 const B = [
@@ -369,7 +380,7 @@ const foot=()=>`<div class="foot"><span>Quilters Dream batting wash test · Fall
 
 // 1 · Title
 S("Title",`<div class="title-grid">
-  <div><div class="kicker">Guild special presentation</div>
+  <div>
   <h1>What happens to batting in the wash?</h1>
   <p class="lede" style="font-size:27px">Fourteen Quilters Dream battings, quilted the same way, then creased, steamed, draped, washed and measured.</p>
   <div class="meta" style="margin-top:30px">${Object.values(FAM).map(f=>`<span class="chip"><span class="dot" style="background:${f.color}"></span>${f.label}</span>`).join("")}</div></div>
@@ -377,30 +388,48 @@ S("Title",`<div class="title-grid">
 </div>${foot()}`,"title-slide");
 
 // Icebreaker quiz
-S("Icebreaker: what would you choose?",`<div style="display:flex;flex-direction:column;justify-content:center;height:100%"><div class="kicker">Icebreaker</div><h2>What batting would <i>you</i> choose?</h2>
-<p class="lede">Three projects, four battings each. Talk it over with your neighbor and pick one, then vote with a show of hands. After the vote, we’ll see what the wash test found.</p></div>${foot()}`,"section-slide");
+S("Icebreaker: test your batting know-how",`<div style="display:flex;flex-direction:column;justify-content:center;height:100%"><div class="kicker">Icebreaker</div><h2>Test your batting know-how</h2>
+<p class="lede">First, a quick warm-up about what goes into batting. Then three real projects: which batting would you reach for? Talk it over with your neighbor, vote with a show of hands, and then we’ll reveal the answer.</p></div>${foot()}`,"section-slide");
+// options: a batting id, or {label, sub} for non-batting answers; res = reveal text; ok = correct
 const QUIZ=[
- {q:"A snuggly couch throw that should drape softly over your lap",
-  opts:[["cotton-supreme","Stiff drape before and after washing."],["cotton-request","Very drapey.",1],["poly-select","Not very good drape before or after washing."],["puff","Not much drape; stayed smooth rather than floppy."]],
-  photo:["cotton-request",5], also:"Dream Angel was just as drapey; Dream Green, Bamboo and Cotton Select also draped well after washing."},
+ {q:"Which of these materials is not used by Quilters Dream in their batting?",
+  hint:"Pick one. Click an option to tally hands.", reveal:"Reveal the answer",
+  opts:[[{label:"Bamboo",sub:"Plant fiber"},"Used: Dream Bamboo blends bamboo with silk, cotton and Tencel®."],
+        [{label:"Hemp",sub:"Plant fiber"},"Not used: there’s no hemp batting in the Quilters Dream lineup.",1],
+        [{label:"Flame-retardant fibers",sub:"Specialty fiber"},"Used: Dream Angel is 100% flame-retardant fibers."],
+        [{label:"Recycled plastic bottles",sub:"Recycled polyester"},"Used: Dream Green is made from recycled plastic bottles."]],
+  tiles:["bamboo","angel","green"],
+  answer:`<b>Hemp</b> isn’t part of the Quilters Dream lineup, but the other three are. The battings in this test also include cotton, polyester, cotton/poly blends and wool.`},
  {q:"A wall hanging where you want the custom quilting to really pop",
   opts:[["angel","Did not have quilting definition."],["cotton-request","Did not have much quilting definition."],["puff","Lots of quilting definition, before and after washing.",1],["poly-request","Shrank without crinkle; definition wasn’t noted."]],
   photo:["puff",4], also:"Cotton Deluxe, Cotton Supreme and Dream Wool were strongly defined too."},
  {q:"A quilt with that crinkly, vintage, washed-and-loved look",
   opts:[["poly-deluxe","Shrank, but no cotton-style crinkle."],["angel","Looked much like the poly battings after washing."],["poly-select","No crinkle; a bit baggy in unquilted areas."],["cotton-select","Some crinkle look, especially in the dense quilting.",1]],
   photo:["cotton-select",4], also:"Cotton Deluxe, Cotton Supreme and Dream Puff crinkled too; the 80/20 behaved much like Cotton Select."},
+ {q:"A T-shirt quilt with a cozy minky backing",
+  reveal:"Reveal our pick",
+  opts:[["green","Pretty good drape and only a hint of surface texture after washing. Light enough to keep a heavy quilt cuddly.",1],
+        ["cotton-supreme","The heaviest cotton loft, with a stiff drape. Too much weight for an already heavy quilt."],
+        ["puff","Lofty and warm, with little drape. Minky is already plenty warm."],
+        ["cotton-select","Crinkles after washing, especially where quilting is dense. That look fights smooth T-shirt panels."]],
+  photo:["green",4], also:"Our pick: T-shirt panels and minky are already heavy and warm, and both look best smooth. Dream Bamboo and Poly Request (both drapier after washing) are worth a look too."},
 ];
+const optHTML=([o,res,ok],i)=>{const b=typeof o==="string"?byId[o]:null;
+  return `<button class="opt" data-ok="${ok?1:0}"><span class="letter">${"ABCD"[i]}</span><span class="otext"><b>${b?b.name:o.label}</b><small>${b?famDot(b.fam)+FAM[b.fam].label:o.sub}</small><span class="res">${ok?"✓ ":""}${res}</span></span><span class="votes" hidden>0</span></button>`;};
+const answerHTML=q=>q.tiles
+  ? `<figure hidden class="mat"><div class="mat-tiles">${q.tiles.map(id=>`<div class="mat-tile" data-id="${id}"><img src="${img(id,4)}" alt="${byId[id].name}"><span>${byId[id].name}</span></div>`).join("")}</div><figcaption>${q.answer}</figcaption></figure>`
+  : `<figure hidden><img class="ans-img" src="${img(...q.photo)}" alt="${byId[q.photo[0]].name}"><figcaption><b>${byId[q.photo[0]].name}</b>, ${STAGES[q.photo[1]-1].long.toLowerCase()}<span>${q.also}</span><button class="tablebtn" data-goto="bat-${q.photo[0]}">See full results →</button></figcaption></figure>`;
 QUIZ.forEach((q,qi)=>S(`Icebreaker ${qi+1}`,`<div class="quiz" data-quiz="${qi}">
  <div><div class="kicker">Icebreaker · ${qi+1} of ${QUIZ.length}</div><h2>${q.q}</h2>
- <p class="quiz-hint">Which batting would you choose? Click an option to tally hands.</p>
- <div class="opts">${q.opts.map(([id,res,ok],i)=>`<button class="opt" data-ok="${ok?1:0}"><span class="letter">${"ABCD"[i]}</span><span class="otext"><b>${byId[id].name}</b><small>${famDot(byId[id].fam)}${FAM[byId[id].fam].label}</small><span class="res">${ok?"✓ ":""}${res}</span></span><span class="votes" hidden>0</span></button>`).join("")}</div>
- <div class="quiz-bar"><button class="btn reveal">Reveal what the test showed <kbd>R</kbd></button><button class="tablebtn reset">Reset votes</button></div></div>
- <div class="answer"><div class="qmark">?</div><figure hidden><img src="${img(...q.photo)}" alt="${byId[q.photo[0]].name}"><figcaption><b>${byId[q.photo[0]].name}</b>, ${STAGES[q.photo[1]-1].long.toLowerCase()}<span>${q.also}</span><button class="tablebtn" data-goto="bat-${q.photo[0]}">See full results →</button></figcaption></figure></div>
+ <p class="quiz-hint">${q.hint||"Which batting would you choose? Click an option to tally hands."}</p>
+ <div class="opts">${q.opts.map(optHTML).join("")}</div>
+ <div class="quiz-bar"><button class="btn reveal">${q.reveal||"Reveal what the test showed"} <kbd>R</kbd></button><button class="tablebtn reset">Reset votes</button></div></div>
+ <div class="answer"><div class="qmark">?</div>${answerHTML(q)}</div>
 </div>${foot()}`,"",initQuiz));
 
 // 2 · The experiment
 S("How the test worked",`<div class="kicker">The experiment</div><h2>Same quilt, fourteen battings, five checkpoints</h2>
-<div class="steps">${STAGES.map((s,i)=>`<div class="step"><img src="${img("cotton-select",i+1)}" alt=""><div class="b"><div class="n">STEP ${i+1} · ${s.date}</div><h4>${s.long}</h4><p>${[
+<div class="steps">${STAGES.map((s,i)=>`<div class="step"><img src="${img("cotton-select",i+1)}" alt=""><div class="b"><div class="n">STEP ${i+1}</div><h4>${s.long}</h4><p>${[
  "Each sample was folded and stored to set hard creases, then hung and photographed.",
  "Creases were steamed out with a high-quality steamer, then re-photographed.",
  "Draped over the same chair arm to compare hand and drape before washing.",
@@ -493,7 +522,7 @@ B.forEach(b=>S(b.name,`<div class="bat" data-bat="${b.id}"><div class="bat-left"
  </dl>
  <div class="mfr"><b>From the manufacturer:</b> ${b.mfr.fiber}. ${b.mfr.loft}. Quilt up to <b>${b.mfr.dist}</b> apart. Stated shrinkage: ${b.mfr.shrinkTxt}.</div>
 </div>
-<div class="viewer"><div class="stage-tabs">${STAGES.map((s,i)=>`<button data-st="${i+1}" ${hasPhoto(b,i+1)?"":"disabled"} class="${i===0?"on":""}">${i+1}. ${s.short}<small>${s.date}</small></button>`).join("")}</div>
+<div class="viewer"><div class="stage-tabs">${STAGES.map((s,i)=>`<button data-st="${i+1}" ${hasPhoto(b,i+1)?"":"disabled"} class="${i===0?"on":""}">${i+1}. ${s.short}</button>`).join("")}</div>
 <div class="mainimg"><img src="${img(b.id,1)}" alt="${b.name}, ${STAGES[0].long}"><button class="orig-toggle">Show original photo</button></div></div></div>${foot()}`,"",initBat));
 
 // Compare
@@ -524,6 +553,12 @@ S("Fine print",`<div class="kicker">The fine print</div><h2>About these results<
  <li><b>Manufacturer figures</b> are from Quilters Dream’s product pages and user guide (checked October 2026).</li>
 </ul>
 <h3 style="margin-top:40px;font-size:44px;color:var(--accent)">Questions?</h3>${foot()}`);
+
+// QR code
+S("Explore the results",`<div class="qr-wrap"><div><div class="kicker">Take it home</div><h2>Explore the results yourself</h2>
+<p class="lede">Scan the code with your phone’s camera to revisit every batting, chart and photo from this presentation.</p>
+<p class="qr-url">adv12.github.io/shortstorylongarm/batting</p></div>
+<div class="qr-card"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges" role="img" aria-label="QR code linking to adv12.github.io/shortstorylongarm/batting"><path stroke="#24211e" d="M0 0.5h7m2 0h2m1 0h1m1 0h1m1 0h1m1 0h4m1 0h2m1 0h7m-33 1h1m5 0h1m2 0h1m1 0h1m3 0h1m2 0h1m2 0h2m1 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h3m2 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m2 0h2m2 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h4m2 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m2 0h3m4 0h2m2 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m2 0h1m1 0h1m1 0h1m2 0h3m2 0h1m-25 1h1m1 0h5m2 0h2m2 0h2m1 0h2m1 0h1m2 0h1m3 0h5m-27 1h2m2 0h3m2 0h2m1 0h4m1 0h1m1 0h2m1 0h2m1 0h4m-30 1h5m1 0h1m2 0h4m1 0h1m3 0h2m5 0h1m1 0h2m-31 1h3m1 0h1m1 0h1m4 0h2m3 0h3m1 0h1m2 0h2m2 0h3m1 0h1m-30 1h1m2 0h2m2 0h3m1 0h3m5 0h1m1 0h2m1 0h3m-29 1h1m1 0h2m2 0h2m2 0h1m3 0h1m1 0h2m2 0h1m1 0h1m1 0h2m4 0h2m-33 1h1m2 0h2m1 0h1m2 0h1m2 0h1m1 0h4m4 0h1m1 0h3m1 0h4m-31 1h1m1 0h2m2 0h4m1 0h1m1 0h2m5 0h6m2 0h2m-30 1h1m1 0h1m2 0h2m1 0h3m1 0h6m3 0h1m2 0h1m1 0h2m3 0h1m-32 1h3m4 0h1m1 0h1m2 0h2m1 0h1m1 0h3m2 0h2m1 0h2m1 0h4m-31 1h1m3 0h1m1 0h6m1 0h2m1 0h1m1 0h2m2 0h1m2 0h2m1 0h2m-32 1h1m3 0h1m3 0h2m2 0h1m1 0h1m1 0h1m3 0h4m2 0h7m-32 1h1m1 0h1m1 0h2m2 0h1m2 0h3m3 0h1m3 0h1m1 0h2m1 0h3m1 0h2m-33 1h1m4 0h1m9 0h3m5 0h1m2 0h1m2 0h1m2 0h1m-33 1h1m2 0h1m1 0h2m1 0h1m1 0h2m2 0h1m2 0h1m2 0h2m5 0h2m1 0h2m-32 1h1m3 0h1m4 0h3m1 0h2m1 0h1m2 0h5m1 0h1m2 0h3m1 0h1m-33 1h1m4 0h3m2 0h2m1 0h1m3 0h1m1 0h2m1 0h7m-21 1h5m1 0h1m1 0h2m1 0h2m1 0h3m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m1 0h4m1 0h1m4 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m3 0h3m1 0h2m2 0h1m1 0h2m3 0h3m-31 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h2m1 0h1m3 0h1m2 0h2m1 0h1m2 0h2m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h4m1 0h1m1 0h4m1 0h5m1 0h2m1 0h1m-30 1h1m5 0h1m3 0h1m1 0h4m3 0h3m3 0h2m1 0h3m-31 1h7m1 0h1m1 0h6m1 0h1m4 0h1m1 0h2m1 0h1m3 0h1"/></svg></div></div>${foot()}`);
 
 /* ======================= RENDER & NAV ======================= */
 const deck=document.getElementById("deck");
@@ -591,7 +626,7 @@ function openLB(id,stage){lbState={id,stage,orig:false};renderLB();lb.classList.
 function renderLB(){
   const b=byId[lbState.id],s=lbState.stage;
   lb.querySelector("img").src=img(b.id,s,lbState.orig);
-  lb.querySelector(".lb-cap").innerHTML=`${b.name} — ${STAGES[s-1].long}<small>${STAGES[s-1].date}${lbState.orig?" · original, unedited photo":""}${SHARED_NOTE[b.id+"_"+s]?" · "+SHARED_NOTE[b.id+"_"+s]:""} · ← → to step through</small>`;
+  lb.querySelector(".lb-cap").innerHTML=`${b.name} — ${STAGES[s-1].long}<small>${[lbState.orig&&"Original, unedited photo",SHARED_NOTE[b.id+"_"+s]].filter(Boolean).map(t=>t+" · ").join("")}← → to step through</small>`;
   lb.querySelector(".lb-bar").innerHTML=STAGES.map((st,i)=>`<button data-s="${i+1}" class="${i+1===s?"on":""}" ${hasPhoto(b,i+1)?"":"disabled"}>${i+1}. ${st.short}</button>`).join("")+`<button data-o="1" class="${lbState.orig?"on":""}">Original photo</button>`;
 }
 function lbStep(d){const b=byId[lbState.id];let s=lbState.stage+d;if(s<1||s>5)return;if(!hasPhoto(b,s))return;lbState.stage=s;renderLB();}
@@ -603,7 +638,7 @@ function initWipes(root){
   root.querySelectorAll(".pair").forEach(w=>{
     const sel=root.querySelector(`select[data-wipe="${w.dataset.wipeEl}"]`);
     const a=+w.dataset.a,bS=+w.dataset.b;
-    const draw=id=>{w.innerHTML=[a,bS].map(s=>`<figure data-s="${s}"><img src="${img(id,s)}" alt="${byId[id].name}, ${STAGES[s-1].long}"><figcaption>${STAGES[s-1].long} · ${STAGES[s-1].date}</figcaption></figure>`).join("");
+    const draw=id=>{w.innerHTML=[a,bS].map(s=>`<figure data-s="${s}"><img src="${img(id,s)}" alt="${byId[id].name}, ${STAGES[s-1].long}"><figcaption>${STAGES[s-1].long}</figcaption></figure>`).join("");
       w.querySelectorAll("figure").forEach(f=>f.onclick=()=>openLB(id,+f.dataset.s));};
     sel.addEventListener("change",()=>draw(sel.value));
     sel.value=w.dataset.id; draw(w.dataset.id);
@@ -701,7 +736,8 @@ function initQuiz(root){
   qz.querySelectorAll(".opt").forEach(o=>o.onclick=()=>{const v=o.querySelector(".votes");v.hidden=false;v.textContent=+v.textContent+1;});
   qz.querySelector(".reveal").onclick=()=>{qz.classList.add("revealed");qz.querySelector("figure").hidden=false;};
   qz.querySelector(".reset").onclick=()=>{qz.querySelectorAll(".votes").forEach(v=>{v.textContent=0;v.hidden=true;});qz.classList.remove("revealed");qz.querySelector("figure").hidden=true;};
-  qz.querySelector(".answer img").onclick=()=>openLB(...q.photo);
+  if(q.photo) qz.querySelector(".ans-img").onclick=()=>openLB(...q.photo);
+  qz.querySelectorAll(".mat-tile").forEach(t=>t.onclick=()=>openLB(t.dataset.id,4));
 }
 function initCompare(root){
   let st=4;
