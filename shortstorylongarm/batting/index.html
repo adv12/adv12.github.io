@@ -35,6 +35,10 @@ button,select{font:inherit;color:inherit}
 /* stitched border, a nod to the quilts */
 .slide::before{content:"";position:absolute;inset:22px;border:2px dashed var(--rule);border-radius:18px;pointer-events:none}
 .slide>*{position:relative}
+/* watermark on every slide */
+.slide::after{content:"shortstorylongarm.com";position:absolute;left:0;right:0;bottom:33px;text-align:center;
+  font:600 16px/1 var(--serif);letter-spacing:.08em;color:var(--ink);opacity:.38;pointer-events:none;z-index:5}
+.section-slide::after{color:#fff;opacity:.55}
 h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:-.01em;color:var(--ink)}
 h2{font-size:52px;line-height:1.08}
 h3{font-size:28px}
